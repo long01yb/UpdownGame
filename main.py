@@ -3,7 +3,7 @@ import os
 import random
 import Obtacles
 import Player
-
+import button as a
 pygame.init()
 
 # Global Constants
@@ -26,6 +26,12 @@ BIRD = [pygame.image.load(os.path.join("Assets/Bird", "Bird1.png")),
         pygame.image.load(os.path.join("Assets/Bird", "Bird2.png"))]
 CLOUD = pygame.image.load(os.path.join("Assets/Other", "Cloud.png"))
 BG = pygame.image.load(os.path.join("Assets/Other", "Track.png"))
+
+BGcolor = (204, 102, 0)
+RED = (255, 0, 0)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+
 
 def main():
     global game_speed, x_pos_bg, y_pos_bg, points, obstacleList
@@ -58,6 +64,7 @@ def main():
 
     while run:
         SCREEN.fill((255, 255, 255))
+
         userInput = pygame.key.get_pressed()
 
         player.draw(SCREEN)
@@ -81,14 +88,24 @@ def main():
         pygame.display.update()
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT or player.isDead():
+            if event.type == pygame.QUIT: #or player.isDead():
                 run = False
+    return 0
 def menu(death_count):
     global points
     run = True
+    global state
+    state = 0 # 0 == menu 1==main 2==studyGame
     while run:
         # display
-        SCREEN.fill((255, 255, 255))
+        SCREEN.fill(BGcolor)
+        Buttons = a.ButtonList()
+        Buttons.add("Start",a.Button(75, 360, 'Start'))
+        Buttons.add("How to play",a.Button(325, 360, 'How to play'))
+        Buttons.add("Quit",a.Button(200, 450, 'Quit'))
+        if state == 0:
+            Buttons.update()
+            Buttons.draw(SCREEN)
         font = pygame.font.Font('freesansbold.ttf', 30)
 
         if death_count == 0:
@@ -106,10 +123,11 @@ def menu(death_count):
         pygame.display.update()
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or Buttons.findButton("Quit").update():
                 run = False
                 break
-            if event.type == pygame.KEYDOWN:
-                main()
+            elif Buttons.findButton("Start").update():
+                state = main()
+            # elif Colliderect somthing:
+            #     studyGame()
 menu(death_count=0)
-pygame.quit()
