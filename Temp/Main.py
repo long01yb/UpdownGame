@@ -14,8 +14,7 @@ SCREEN_HEIGHT = 600
 SCREEN_WIDTH = 1100
 SCREEN = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
 
-RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1.png")),
-           pygame.image.load(os.path.join("Assets/Dino", "DinoRun2.png"))]
+RUNNING = [pygame.image.load(os.path.join("Assets/Dino", "DinoRun1.png"))]
 BG = pygame.image.load(os.path.join("Assets/Other", "BG.jpg"))
 BG1 = pygame.image.load(os.path.join("Assets/Other", "Track1.jpg"))
 START = 1
