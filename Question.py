@@ -8,6 +8,7 @@ ANSWER = [pygame.image.load(os.path.join("Assets/Other", "AnswerIdle.png")),
           pygame.image.load(os.path.join("Assets/Other", "AnswerHover.png")),
           pygame.image.load(os.path.join("Assets/Other", "Question_AC.png")),
           pygame.image.load(os.path.join("Assets/Other", "Question_WA.png"))]
+BG = [pygame.image.load(os.path.join("Assets/Other", "Question_BG.png"))]
 listQA = []
 f = open("QA.txt")
 for data in f:
@@ -25,15 +26,12 @@ class Question:
         self.screen = screen
         self.buttonlist = a.ButtonList()
         self.index = 0
-        if background == None:
-            self.background = Rect(210,180,600,310) #
-        else:
-            self.background = background
+        self.background = BG[0]
         self.buttonlist.add("Ques", a.Button(200 + 40, 200,20,QUESTION[0],QUESTION[0],listQA[self.index][0]))
         self.buttonlist.add(self.QUESTION[1], a.Button(240 , 340,20,ANSWER[0],ANSWER[1],listQA[self.index][1]))
         self.buttonlist.add(self.QUESTION[2], a.Button(600 - 70, 340,20,ANSWER[0],ANSWER[1],listQA[self.index][2]))
-        self.buttonlist.add(self.QUESTION[3], a.Button(240 , 410,20,ANSWER[0],ANSWER[1],listQA[self.index][3]))
-        self.buttonlist.add(self.QUESTION[4], a.Button(600 - 70, 410,20,ANSWER[0],ANSWER[1],listQA[self.index][4]))
+        self.buttonlist.add(self.QUESTION[3], a.Button(240 , 420,20,ANSWER[0],ANSWER[1],listQA[self.index][3]))
+        self.buttonlist.add(self.QUESTION[4], a.Button(600 - 70, 420,20,ANSWER[0],ANSWER[1],listQA[self.index][4]))
         self.CorrectAnswerindex =  int(listQA[self.index][5])
         self.state = self.THINKING
         self.buttonAC = self.buttonlist.findButton(self.QUESTION[self.CorrectAnswerindex])
@@ -74,7 +72,7 @@ class Question:
         pygame.time.delay(1000)
         return self.state == self.ANS_TRUE
     def draw(self):
-        pygame.draw.rect(self.screen,(255,255,255), self.background)
+        self.screen.blit(self.background,(200,160))
         self.buttonlist.draw(self.screen)
     def run(self):
         self.update()
