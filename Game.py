@@ -27,7 +27,8 @@ class Game(Window):
         self.scroll = 0
         self.inc = 1
         self.ques = Question(self.screen)
-        self.delay = False
+        self.threadStack = []
+        self.clock.tick(self.fps)
     def initButtons(self):
         # add button of game here
         pass
@@ -92,38 +93,33 @@ class Game(Window):
             self.ques.update()
     def drawPoint(self):
         font = pygame.font.Font('freesansbold.ttf', 20)
-        text = font.render("Points: " + str(self.points), True, (0, 0, 0))
+        text = font.render("Points: " + str(self.points), True, (150, 50, 50))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         self.screen.blit(text, textRect)
     # update point,speed,input
     def runStuff(self):
-
         self.updatePoints_Speed_userInput()
         self.drawPoint()
     def runBackground(self):
         width = self.background.get_width()
-
         self.updateScroll()
         for x in range(4):
             self.screen.blit(self.background, (width*x - self.scroll,0))
     def runPlayer_Obtacle(self):
         self.updatePlayer()
         self.updateObtacleList()
-    def draw(self):
         self.obtacleList.draw()
         self.player.draw()
+    def checkQues(self):
         if self.state == self.COLLISION:
             self.ques.draw()
     def run(self):
-        while self.state != self.QUIT:
-            if self.state == self.PLAYING:
-                threading.Thread(target=self.runBackground(), args=()).start() # thread background
-                threading.Thread(target=self.runStuff(), args=()).start() # thread infomation
-                threading.Thread(target=self.generateObtacle(), args=()).start() # thread generate
-                threading.Thread(target=self.runPlayer_Obtacle(), args=()).start() # thread Player
-            # thread state
-            self.updateState()
-            self.draw()
-            self.clock.tick(self.fps)
-            pygame.display.update()
+        self.updateState()
+        if self.state == self.PLAYING:
+            self.runBackground()
+            self.runStuff()
+            self.generateObtacle()
+            self.runPlayer_Obtacle()
+        self.checkQues()
+        pygame.display.update()
