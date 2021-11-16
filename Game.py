@@ -1,7 +1,9 @@
 import random
+import threading
 
 import pygame
 import os
+import threading
 from Window import  Window
 import Player
 import Obtacles
@@ -20,7 +22,7 @@ class Game(Window):
         self.fps = 30
         self.points = 0
         self.event = None
-        self.userInput = None
+        self.userInput = pygame.key.get_pressed()
         self.clock = pygame.time.Clock()
         self.scroll = 0
         self.inc = 1
@@ -43,7 +45,9 @@ class Game(Window):
         return self.fps
     def getPoint(self):
         return self.points
-    def updateState(self):
+    def isQUIT(self):
+        return self.state == self.QUIT
+    def checkState(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT or self.player.isDead():
                 self.state = self.QUIT
@@ -64,55 +68,62 @@ class Game(Window):
             self.ques.updateContent()
             self.inc = 1
             self.state = self.PLAYING
-    def updateSpeed(self):
+    def updatePoints_Speed_userInput(self):
         if self.points % 200 == 0:
             self.speed += self.inc
-    def updatePoints(self):
         self.points += self.inc
     def updateUserInput(self):
         self.userInput = pygame.key.get_pressed()
     def updatePlayer(self):
-        if self.userInput[pygame.K_o]:
+        if pygame.mouse.get_pressed()[0]:
             self.player.shoot(self.speed,BULLET,self.screen)
         self.player.update(self.userInput,self.speed)
-
     def updateObtacleList(self):
         self.obtacleList.update(self.player,self.speed)
-
     def updateScroll(self):
         self.scroll += self.inc*4
-    def update(self):
-        self.updateState()
-        if  self.state == self.PLAYING:
-            self.updatePoints()
-            self.updateSpeed()
-            self.updateUserInput()
-            self.updatePlayer()
-            self.updateScroll()
-            self.generateObtacle()
-            self.updateObtacleList()
-        elif self.state == self.STOP:
+    def updateState(self):
+        self.checkState()
+        if self.state == self.STOP:
             self.inc = 0
         elif self.state == self.COLLISION:
             self.player.updateState()
             self.obtacleList.updateCollsion(self.player)
             self.ques.update()
-    def draw(self):
-        width = self.background.get_width()
-        for x in range(4):
-            self.screen.blit(self.background, (width*x - self.scroll,0))
+    def drawPoint(self):
         font = pygame.font.Font('freesansbold.ttf', 20)
         text = font.render("Points: " + str(self.points), True, (0, 0, 0))
         textRect = text.get_rect()
         textRect.center = (1000, 40)
         self.screen.blit(text, textRect)
+    # update point,speed,input
+    def runStuff(self):
+
+        self.updatePoints_Speed_userInput()
+        self.drawPoint()
+    def runBackground(self):
+        width = self.background.get_width()
+
+        self.updateScroll()
+        for x in range(4):
+            self.screen.blit(self.background, (width*x - self.scroll,0))
+    def runPlayer_Obtacle(self):
+        self.updatePlayer()
+        self.updateObtacleList()
+    def draw(self):
         self.obtacleList.draw()
         self.player.draw()
-
         if self.state == self.COLLISION:
             self.ques.draw()
     def run(self):
-        self.update()
-        self.draw()
-        self.clock.tick(self.fps)
-        pygame.display.update()
+        while self.state != self.QUIT:
+            if self.state == self.PLAYING:
+                threading.Thread(target=self.runBackground(), args=()).start() # thread background
+                threading.Thread(target=self.runStuff(), args=()).start() # thread infomation
+                threading.Thread(target=self.generateObtacle(), args=()).start() # thread generate
+                threading.Thread(target=self.runPlayer_Obtacle(), args=()).start() # thread Player
+            # thread state
+            self.updateState()
+            self.draw()
+            self.clock.tick(self.fps)
+            pygame.display.update()
